@@ -1,0 +1,4 @@
+---
+collections:
+- middleware_automation.wildfly
+- middleware_automation.jcliff

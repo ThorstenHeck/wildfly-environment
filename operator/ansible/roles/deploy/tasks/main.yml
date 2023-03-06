@@ -1,0 +1,11 @@
+- name: "set local IP"
+  shell: "ip addr show dev eth0 | grep 'inet ' | awk '{print $2}'| awk -F '/' '{print $1}'"
+  register: ansible_host_local_ip
+
+- name: Print return information from the previous task
+  ansible.builtin.debug:
+    var: ansible_host_local_ip
+
+- name: Print return information from the previous task
+  ansible.builtin.debug:
+    var: inventory_dir

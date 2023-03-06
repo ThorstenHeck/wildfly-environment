@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>File upload demo</title>
+  </head>
+  <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous">
+</script>
+  <body>
+    <form
+      id="form_upload"
+      action="/upload"
+      enctype="multipart/form-data"
+      method="POST"
+      data-autosubmit
+    >
+      <input class="input file-input" type="file" name="file" accept=".zip"/>
+      <button type="submit" class="btn btn-light" data-name="form_upload" onsubmit="submit">Upload!</button>    
+    </form>
+
+    <form
+      id="form_deploy"
+      action="/deploy"
+      enctype="application/json"
+      method="POST"
+    >
+      <button type="submit" class="btn btn-light" data-name="form_deploy" onsubmit="ok">Deploy!</button>    
+    </form>
+    <script>
+$(document).ready(function() {
+  $( '#form_upload' )
+  .submit( function( e ) {
+    $.ajax( {
+      url: '/upload',
+      type: 'POST',
+      data: new FormData( this ),
+      processData: false,
+      contentType: false,
+      async: !1
+    } );
+    e.preventDefault();
+  } );
+});
+
+  </script>
+
+
+  </body>
+</html>
+
+

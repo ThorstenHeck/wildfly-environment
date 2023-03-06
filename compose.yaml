@@ -1,0 +1,100 @@
+services:
+  operator:
+    restart: always
+    build: 
+      context: .
+      args:
+        - ssh_prv_key="$(cat ssh/ansible)"
+        - ssh_pub_key="$(cat ssh/ansible.pub)"
+    ports:
+      - 10000:10000
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:10000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ansible:/home/ansible/.ssh/
+    networks:
+      - hpkv
+    profiles:
+      - oracle
+      - postgres
+
+  db-postgres:
+    image: postgres
+    restart: always
+    user: postgres
+    secrets:
+      - db-password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ansible.pub:/root/.ssh/authorized_keys
+    environment:
+      - POSTGRES_DB=db
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hpkv
+    profiles:
+      - postgres
+
+  db-oracle:
+    image: container-registry.oracle.com/database/express:21.3.0-xe
+    restart: always
+    secrets:
+      - db-password
+    volumes:
+      - ansible.pub:/root/.ssh/authorized_keys
+      - db-data:/opt/oracle/oradata 
+    environment:
+      - ORACLE_PWD=password
+    expose:
+      - 1521
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:1521" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hpkv
+    profiles:
+      - oracle
+
+  wildfly:
+    restart: always
+    image: quay.io/wildfly/wildfly:latest
+    ports:
+      - 8080:8080
+      - 9990:9990
+    entrypoint: ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8080" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ansible.pub:/root/.ssh/authorized_keys
+    depends_on: 
+      - operator
+    networks:
+      - hpkv
+    profiles:
+      - oracle
+      - postgres
+
+volumes:
+  db-data:
+  ansible:
+  ansible.pub:
+secrets:
+  db-password:
+    file: db/password.txt
+networks:
+  hpkv:
