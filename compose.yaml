@@ -3,9 +3,6 @@ services:
     restart: always
     build: 
       context: .
-      args:
-        - ssh_prv_key="$(cat ssh/ansible)"
-        - ssh_pub_key="$(cat ssh/ansible.pub)"
     ports:
       - 10000:10000
     healthcheck:
