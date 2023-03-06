@@ -23,7 +23,7 @@ RUN /bin/sh -c set -xe && \
     adduser --uid $USER_ID --disabled-password --home /home/ansible \
     --shell /bin/bash --ingroup $GROUP_NAME $USER_NAME  && \
     chown ansible:ansible -R /home/ansible && chown ansible:ansible -R /app && chown ansible:ansible -R /usr/local/go && \
-    mkdir -p /home/ansible/.ssh && \
+    mkdir -p /home/ansible/.ssh && mkdir /app/upload  && chown ansible:ansible -R /app/upload && \
     echo "Host *\n\tStrictHostKeyChecking no\n" >> /home/ansible/.ssh/config
 
 WORKDIR /app

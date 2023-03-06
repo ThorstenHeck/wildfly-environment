@@ -10,8 +10,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - ansible:/home/ansible/.ssh/
     networks:
       - hpkv
     profiles:
@@ -19,14 +17,12 @@ services:
       - postgres
 
   db-postgres:
-    image: postgres
+    build: 
+      context: ./db/postgres
     restart: always
     user: postgres
     secrets:
       - db-password
-    volumes:
-      - db-data:/var/lib/postgresql/data
-      - ansible.pub:/root/.ssh/authorized_keys
     environment:
       - POSTGRES_DB=db
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
@@ -47,9 +43,6 @@ services:
     restart: always
     secrets:
       - db-password
-    volumes:
-      - ansible.pub:/root/.ssh/authorized_keys
-      - db-data:/opt/oracle/oradata 
     environment:
       - ORACLE_PWD=password
     expose:
@@ -76,8 +69,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    volumes:
-      - ansible.pub:/root/.ssh/authorized_keys
     depends_on: 
       - operator
     networks:
@@ -86,10 +77,6 @@ services:
       - oracle
       - postgres
 
-volumes:
-  db-data:
-  ansible:
-  ansible.pub:
 secrets:
   db-password:
     file: db/password.txt

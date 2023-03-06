@@ -59,3 +59,20 @@ ansible-galaxy collection install middleware_automation.wildfly
 
 ansible-galaxy collection install middleware_automation.jcliff
 https://ansiblemiddleware.com/ansible_collections_jcliff/main/plugins/jcliff_module.html#ansible-collections-middleware-automation-jcliff-jcliff-module
+
+
+
+
+docker-compose --profile oracle up -d
+
+docker rm -f wildfly-environment-operator-1
+docker rm -f wildfly-environment-db-postgres-1
+docker rm -f wildfly-environment-wildfly-1
+docker network rm wildfly-environment_hpkv
+
+docker-compose --profile postgres up -d
+
+docker rm -f wildfly-environment-operator-1
+docker rm -f wildfly-environment-db-oracle-1
+docker rm -f wildfly-environment-wildfly-1
+docker network rm wildfly-environment_hpkv
