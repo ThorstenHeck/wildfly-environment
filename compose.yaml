@@ -59,7 +59,8 @@ services:
 
   wildfly:
     restart: always
-    image: quay.io/wildfly/wildfly:latest
+    build: 
+      context: ./wildfly
     ports:
       - 8080:8080
       - 9990:9990

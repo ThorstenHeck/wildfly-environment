@@ -24,9 +24,11 @@ We will spin up our multi-container Docker container environment with Docker Com
 To be able to choose between the databases Postgresql and Oracle, we have to set profiles, since its the only way to set conditional statements via docker-compose itself.  
 https://github.com/compose-spec/compose-spec/blob/master/spec.md#profiles
 
-### Running
+### Installation
 
-    docker-compose --profile oracle --build up -d
+    git clone https://github.com/ThorstenHeck/wildfly-environment.git
+    cd wildfly-environment
+    docker-compose --profile postgres --build up -d
 
 ### operator
 
@@ -71,8 +73,25 @@ docker rm -f wildfly-environment-wildfly-1
 docker network rm wildfly-environment_hpkv
 
 docker-compose --profile postgres up -d
+docker-compose --profile postgres down
+docker-compose --profile postgres ps
 
 docker rm -f wildfly-environment-operator-1
 docker rm -f wildfly-environment-db-oracle-1
 docker rm -f wildfly-environment-wildfly-1
 docker network rm wildfly-environment_hpkv
+
+docker exec -it wildfly-environment-wildfly-1 /opt/jboss/wildfly/bin/add-user.sh -u 'adminuser1' -p 'adminuser1' -g 'admin'
+
+docker exec -it wildfly-environment-db-postgres-1 /bin/bash
+
+
+docker-compose build wildfly --build-arg ADMINPW=CLI
+
+
+
+
+docker-compose build wildfly operator db-postgres db-oracle --build-arg WILDFLY_ADMIN_PW=Password!
+
+
+ssh-keygen -t ed25519 -f ./ssh/ -q -N "" 
