@@ -1,9 +1,17 @@
 [all]
-wildfly ansible_host=172.10.0.2
-db ansible_host=172.10.0.3
+wildfly ansible_host=10.5.0.2
+db-postgres ansible_host=10.5.0.3
+db-postgres ansible_host=10.5.0.4
+operator ansible_host=10.5.0.5
 
 [wildfly]
 wildfly
 
-[db]
-db
+[db-postgres]
+db-postgres
+
+[db-oracle]
+db-oracle
+
+[operator]
+operator

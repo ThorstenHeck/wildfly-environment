@@ -1,7 +1,7 @@
 ---
 - name: deploy to wildfly
   hosts:
-    - localhost
+    - wildfly
   # become: yes
 
   vars_files:

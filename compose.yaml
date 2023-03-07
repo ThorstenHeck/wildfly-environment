@@ -10,10 +10,10 @@ services:
       retries: 5
     networks:
       hpkv:
-        ipv4_address: 172.17.5.5
+        ipv4_address: 10.5.0.5
     ports:
-      - 2225:22
-      - 10000:10000
+      - "2225:22"
+      - "10000:10000"
     profiles:
       - oracle
       - postgres
@@ -37,10 +37,9 @@ services:
       retries: 5
     networks:
       hpkv:
-        ipv4_address: 172.17.5.4
+        ipv4_address: 10.5.0.4
     ports:
-      - 2224:22
-      - 8080:8080
+      - "2224:22"
     profiles:
       - postgres
 
@@ -53,7 +52,7 @@ services:
     environment:
       - ORACLE_PWD=password
     expose:
-      - 1521
+      - "1521"
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:1521" ]
       interval: 10s
@@ -61,9 +60,9 @@ services:
       retries: 5
     networks:
       hpkv:
-        ipv4_address: 172.17.5.3
+        ipv4_address: 10.5.0.3
     ports:
-      - 2223:22
+      - "2223:22"
     profiles:
       - oracle
 
@@ -72,9 +71,9 @@ services:
     build: 
       context: ./wildfly
     ports:
-      - 8080:8080
-      - 9990:9990
-      - 2222:22
+      - "8080:8080"
+      - "9990:9990"
+      - "2222:22"
     entrypoint: ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:8080" ]
@@ -85,7 +84,7 @@ services:
       - operator
     networks:
       hpkv:
-        ipv4_address: 172.17.5.2
+        ipv4_address: 10.5.0.2
 
     profiles:
       - oracle
@@ -96,6 +95,8 @@ secrets:
     file: db/password.txt
 networks:
   hpkv:
+    driver: bridge
     ipam:
-      config:
-        - subnet: 172.17.5.0/24
+     config:
+       - subnet: 10.5.0.0/16
+         gateway: 10.5.0.1

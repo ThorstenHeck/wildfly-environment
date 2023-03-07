@@ -240,6 +240,7 @@ func deploy(w http.ResponseWriter, r *http.Request) {
     cmd := exec.Command(prg, arg1, arg2, arg3)
     cmd.Env = os.Environ()
     cmd.Env = append(cmd.Env, "ANSIBLE_ROLES_PATH=/app/ansible/roles")
+    cmd.Env = append(cmd.Env, "ansible_ssh_private_key_file=/home/ansible/.ssh/id_ed25519")
     stdout, err := cmd.Output()
 
     if err != nil {
