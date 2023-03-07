@@ -20,7 +20,11 @@ RUN mkdir /var/run/sshd && ssh-keygen -A
 # New added for disable sudo password
 RUN groupadd -g 110 sudo && usermod -aG sudo jboss
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+COPY ./docker-entrypoint.sh /etc/docker-entrypoint.sh
+RUN chown jboss:jboss /etc/docker-entrypoint.sh
+RUN chmod 770 /etc/docker-entrypoint.sh
 
 USER jboss
 
-CMD ["/usr/bin/sudo", "/usr/sbin/sshd","-D"]
+ENTRYPOINT ["/etc/docker-entrypoint.sh"]
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]

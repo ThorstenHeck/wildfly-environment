@@ -1,8 +1,8 @@
 [all]
-wildfly ansible_host=10.5.0.2
-db-postgres ansible_host=10.5.0.3
-db-postgres ansible_host=10.5.0.4
-operator ansible_host=10.5.0.5
+wildfly ansible_host=10.5.0.2 ansible_ssh_user=root ansible_ssh_private_key_file=/home/ansible/.ssh/id_ed25519
+db-oracle ansible_host=10.5.0.3 ansible_ssh_user=root ansible_ssh_private_key_file=/home/ansible/.ssh/id_ed25519
+db-postgres ansible_host=10.5.0.4 ansible_ssh_user=root ansible_ssh_private_key_file=/home/ansible/.ssh/id_ed25519
+operator ansible_host=10.5.0.5 ansible_ssh_user=root  ansible_ssh_private_key_file=/home/ansible/.ssh/id_ed25519
 
 [wildfly]
 wildfly

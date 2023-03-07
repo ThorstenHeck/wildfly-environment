@@ -74,7 +74,6 @@ services:
       - "8080:8080"
       - "9990:9990"
       - "2222:22"
-    entrypoint: ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:8080" ]
       interval: 10s

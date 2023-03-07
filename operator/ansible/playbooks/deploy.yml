@@ -5,7 +5,7 @@
   # become: yes
 
   vars_files:
-    - "/app/ansible/environments/DEV//vars/test-var-file.yml"
+    - "/app/ansible/environments/DEV/vars/test-var-file.yml"
 
   roles:
     - role: deploy

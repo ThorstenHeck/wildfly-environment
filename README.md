@@ -118,10 +118,12 @@ CIP=$(docker inspect \
   -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
 ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
 
+wildfly-environment_wildfly_1
+
 ### db-postgres
 docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres
-docker run -p 2222:22 -it --rm  wildfly-environment-db-postgres
-CID=$(docker ps | grep  wildfly-environment-db-postgres | awk '{print $1}')
+docker run -p 2222:22 -it --rm  wildfly-environment_db-postgres_1
+CID=$(docker ps | grep  wildfly-environment_db-postgres_1 | awk '{print $1}')
 CIP=$(docker inspect \
   -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
 ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
@@ -153,6 +155,7 @@ docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-o
 docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" --build-arg "SSH_PRIV_KEY=$(cat ./ssh/id_ed25519)" operator
 
 docker-compose --profile postgres up -d
+docker-compose --profile postgres down
 
 
 docker exec -it wildfly-environment-db-postgres-1 /bin/bash
@@ -161,3 +164,10 @@ docker exec -it wildfly-environment-db-postgres-1 /bin/bash
 docker exec -it $CID /bin/bash
 
 go run main.go 2>> /app/logs/logfile
+
+sed '/^"/i before=me' test.txt
+sed -i '/^exec "$@"/a /usr/bin/sudo /usr/sbin/sshd -D' /usr/local/bin/docker-entrypoint.sh
+exec "$@"
+
+
+docker-compose --profile postgres down && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres && docker-compose --profile postgres up -d && docker-compose --profile postgres ps && docker exec -it --user root wildfly-environment_db-postgres_1 /bin/bash

@@ -234,7 +234,7 @@ func deploy(w http.ResponseWriter, r *http.Request) {
     prg := "ansible-playbook"
 
     arg1 := "-i"
-    arg2 := "/app/environments/DEV/inventory"
+    arg2 := "/app/ansible/environments/DEV/inventory"
     arg3 := "/app/ansible/playbooks/deploy.yml"
 
     cmd := exec.Command(prg, arg1, arg2, arg3)

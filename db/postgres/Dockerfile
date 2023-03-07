@@ -21,5 +21,8 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 COPY ./docker-entrypoint.sh /etc/docker-entrypoint.sh
 RUN chown postgres:postgres /etc/docker-entrypoint.sh
 RUN chmod 770 /etc/docker-entrypoint.sh
-
 USER postgres
+
+ENTRYPOINT ["/etc/docker-entrypoint.sh"]
+
+CMD ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
