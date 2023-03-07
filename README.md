@@ -120,9 +120,8 @@ ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
 
 ### db-postgres
 docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres
-docker run -p 2222:22 -it --rm  wildfly-environment_db-postgres
-
-CID=$(docker ps | grep  wildfly-environment_db-postgres | awk '{print $1}')
+docker run -p 2222:22 -it --rm  wildfly-environment-db-postgres
+CID=$(docker ps | grep  wildfly-environment-db-postgres | awk '{print $1}')
 CIP=$(docker inspect \
   -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
 ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
@@ -156,7 +155,7 @@ docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" --bu
 docker-compose --profile postgres up -d
 
 
-
+docker exec -it wildfly-environment-db-postgres-1 /bin/bash
 
 
 docker exec -it $CID /bin/bash

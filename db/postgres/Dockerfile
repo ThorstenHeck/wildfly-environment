@@ -18,7 +18,8 @@ RUN mkdir /var/run/sshd && ssh-keygen -A
 # New added for disable sudo password
 RUN usermod -aG sudo postgres
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+COPY ./docker-entrypoint.sh /etc/docker-entrypoint.sh
+RUN chown postgres:postgres /etc/docker-entrypoint.sh
+RUN chmod 770 /etc/docker-entrypoint.sh
 
 USER postgres
-
-CMD ["/usr/bin/sudo", "/usr/sbin/sshd","-D"]
