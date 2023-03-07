@@ -1,17 +1,26 @@
 FROM quay.io/wildfly/wildfly:latest
 
-ARG WILDFLY_ADMIN_PW=adminuser1
-ARG SSH_PRIV_KEY=
-ARG SSH_PUB_KEY=
+ARG WILDFLY_ADMIN_PW=_OVERRIDE_--build-arg
+ARG SSH_PRIV_KEY=_OVERRIDE_--build-arg
+ARG SSH_PUB_KEY=_OVERRIDE_--build-arg
 
-RUN whoami && ls -lisa /root
-RUN yum –y install openssh-server openssh-clients
 RUN /opt/jboss/wildfly/bin/add-user.sh -u 'adminuser1' -p ${WILDFLY_ADMIN_PW} -g 'admin'
 
-RUN echo ${SSH_PRIV_KEY} ${SSH_PUB_KEY} 
+USER root
+
+RUN yum -y install openssh-server sudo
 
 RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh && \
-    echo "$SSH_PRIV_KEY" > /root/.ssh/id_ed25519 && \
-    echo "$SSH_PUB_KEY" > /root/.ssh/id_ed25519.pub && \
-    chmod 600 /root/.ssh/id_ed25519 && \
-    chmod 600 /root/.ssh/id_ed25519.pub
+    echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys && \
+    sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    # SSH login fix. Otherwise user is kicked off after login
+    sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+RUN mkdir /var/run/sshd && ssh-keygen -A
+# New added for disable sudo password
+RUN groupadd -g 110 sudo && usermod -aG sudo jboss
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+USER jboss
+
+CMD ["/usr/bin/sudo", "/usr/sbin/sshd","-D"]

@@ -3,15 +3,17 @@ services:
     restart: always
     build: 
       context: .
-    ports:
-      - 10000:10000
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:10000" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - hpkv
+      hpkv:
+        ipv4_address: 172.17.5.5
+    ports:
+      - 2225:22
+      - 10000:10000
     profiles:
       - oracle
       - postgres
@@ -34,12 +36,17 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - hpkv
+      hpkv:
+        ipv4_address: 172.17.5.4
+    ports:
+      - 2224:22
+      - 8080:8080
     profiles:
       - postgres
 
   db-oracle:
-    image: container-registry.oracle.com/database/express:21.3.0-xe
+    build: 
+      context: ./db/oracle
     restart: always
     secrets:
       - db-password
@@ -53,7 +60,10 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - hpkv
+      hpkv:
+        ipv4_address: 172.17.5.3
+    ports:
+      - 2223:22
     profiles:
       - oracle
 
@@ -64,6 +74,7 @@ services:
     ports:
       - 8080:8080
       - 9990:9990
+      - 2222:22
     entrypoint: ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-bmanagement", "0.0.0.0"]
     healthcheck:
       test: [ "CMD", "curl", "http://localhost:8080" ]
@@ -73,7 +84,9 @@ services:
     depends_on: 
       - operator
     networks:
-      - hpkv
+      hpkv:
+        ipv4_address: 172.17.5.2
+
     profiles:
       - oracle
       - postgres
@@ -83,3 +96,6 @@ secrets:
     file: db/password.txt
 networks:
   hpkv:
+    ipam:
+      config:
+        - subnet: 172.17.5.0/24

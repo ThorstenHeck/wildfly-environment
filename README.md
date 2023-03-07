@@ -93,5 +93,58 @@ docker-compose build wildfly --build-arg ADMINPW=CLI
 
 docker-compose build wildfly operator db-postgres db-oracle --build-arg WILDFLY_ADMIN_PW=Password!
 
-
 ssh-keygen -t ed25519 -f ./ssh/ -q -N "" 
+
+docker run -it --rm wildfly-environment_wildfly /bin/bash
+
+docker exec -it wildfly-environment_wildfly /bin/bash
+
+ssh-keygen -A
+/usr/sbin/sshd -D -o ListenAddress=0.0.0.0 &
+
+IdentitiesOnly
+
+
+### SSH Test Connection
+https://gdevillele.github.io/engine/examples/running_ssh_service/
+
+
+### wildfly
+docker-compose build --build-arg "WILDFLY_ADMIN_PW=$(cat ./wildfly/password.txt)" --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" wildfly 
+docker run -p 2222:22 -it --rm  wildfly-environment_wildfly
+
+CID=$(docker ps | grep  wildfly-environment_wildfly | awk '{print $1}')
+CIP=$(docker inspect \
+  -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
+ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
+
+### db-postgres
+docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres
+docker run -p 2222:22 -it --rm  wildfly-environment_db-postgres
+
+CID=$(docker ps | grep  wildfly-environment_db-postgres | awk '{print $1}')
+CIP=$(docker inspect \
+  -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
+ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
+
+### db-oracle
+docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-oracle
+docker run -p 2222:22 -it --rm  wildfly-environment_db-oracle
+
+CID=$(docker ps | grep  wildfly-environment_db-oracle | awk '{print $1}')
+CIP=$(docker inspect \
+  -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
+ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
+
+### operator
+docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" --build-arg "SSH_PRIV_KEY=$(cat ./ssh/id_ed25519)" operator
+docker run -p 2222:22 -it --rm  wildfly-environment_operator
+
+CID=$(docker ps | grep  wildfly-environment_operator | awk '{print $1}')
+CIP=$(docker inspect \
+  -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
+ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
+
+docker exec -it $CID /bin/bash
+
+go run main.go 2>> /app/logs/logfile
