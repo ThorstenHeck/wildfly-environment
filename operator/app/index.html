@@ -32,20 +32,21 @@
       <button type="submit" class="btn btn-light" data-name="form_deploy" onsubmit="ok">Deploy!</button>    
     </form>
     <script>
-$(document).ready(function() {
-  $( '#form_upload' )
-  .submit( function( e ) {
-    $.ajax( {
-      url: '/upload',
-      type: 'POST',
-      data: new FormData( this ),
-      processData: false,
-      contentType: false,
-      async: !1
-    } );
-    e.preventDefault();
-  } );
-});
+
+// $(document).ready(function() {
+//   $( '#form_upload' )
+//   .submit( function( e ) {
+//     $.ajax( {
+//       url: '/upload',
+//       type: 'POST',
+//       data: new FormData( this ),
+//       processData: false,
+//       contentType: false,
+//       async: !1
+//     } );
+//     e.preventDefault();
+//   } );
+// });
 
   </script>
 
