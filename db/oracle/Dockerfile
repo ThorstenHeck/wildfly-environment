@@ -4,7 +4,7 @@ ARG SSH_PUB_KEY=_OVERRIDE_--build-arg
 
 USER root
 
-RUN yum -y install openssh-server sudo
+RUN yum -y install openssh-server sudo python3
 
 RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh && \
     echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys && \
@@ -15,6 +15,11 @@ RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh && \
 RUN mkdir /var/run/sshd && ssh-keygen -A
 RUN groupadd -g 110 sudo && usermod -aG sudo oracle
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+COPY ./docker-entrypoint.sh /etc/docker-entrypoint.sh
+RUN chown oracle:root /etc/docker-entrypoint.sh
+RUN chmod 770 /etc/docker-entrypoint.sh
 USER oracle
 
-CMD ["/usr/bin/sudo", "/usr/sbin/sshd","-D"]
+ENTRYPOINT ["/etc/docker-entrypoint.sh"]
+
+CMD [ "/bin/sh", "-c", "exec $ORACLE_BASE/$RUN_FILE" ]

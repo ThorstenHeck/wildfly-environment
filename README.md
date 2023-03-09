@@ -158,7 +158,13 @@ docker-compose --profile postgres up -d
 docker-compose --profile postgres down
 
 
-docker exec -it wildfly-environment-db-postgres-1 /bin/bash
+
+docker-compose build --build-arg "WILDFLY_ADMIN_PW=$(cat ./wildfly/password.txt)" --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" wildfly && \
+docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres && \
+docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-oracle && \
+docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" --build-arg "SSH_PRIV_KEY=$(cat ./ssh/id_ed25519)" operator && \
+docker-compose --profile postgres up -d && \
+docker exec -it wildfly-environment_operator_1 /bin/bash
 
 
 docker exec -it $CID /bin/bash
@@ -171,3 +177,41 @@ exec "$@"
 
 
 docker-compose --profile postgres down && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres && docker-compose --profile postgres up -d && docker-compose --profile postgres ps && docker exec -it --user root wildfly-environment_db-postgres_1 /bin/bash
+
+
+
+    prg := "ansible-playbook"
+
+    arg1 := "-i"
+    arg2 := "/app/ansible/environments/DEV/inventory"
+    arg3 := "/app/ansible/playbooks/deploy.yml"
+
+    cmd := exec.Command(prg, arg1, arg2, arg3)
+    cmd.Env = os.Environ()
+    cmd.Env = append(cmd.Env, "ANSIBLE_ROLES_PATH=/app/ansible/roles")
+
+ANSIBLE_ROLES_PATH=/app/ansible/roles ansible-playbook -i /app/ansible/environments/DEV/inventory /app/ansible/playbooks/deploy.yml
+
+
+
+#### postgres 
+
+docker-compose build --build-arg "WILDFLY_ADMIN_PW=$(cat ./wildfly/password.txt)" --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" wildfly && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-oracle && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" --build-arg "SSH_PRIV_KEY=$(cat ./ssh/id_ed25519)" operator && docker-compose --profile postgres up -d && docker exec -it wildfly-environment_operator_1 /bin/bash
+
+#### oracle
+
+docker-compose build --build-arg "WILDFLY_ADMIN_PW=$(cat ./wildfly/password.txt)" --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" wildfly && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-postgres && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" db-oracle && docker-compose build  --build-arg "SSH_PUB_KEY=$(cat ./ssh/id_ed25519.pub)" --build-arg "SSH_PRIV_KEY=$(cat ./ssh/id_ed25519)" operator && docker-compose --profile oracle up -d && docker exec -it wildfly-environment_db-oracle_1 /bin/bash
+
+
+
+
+
+docker exec -it wildfly-environment_db-oracle_1 /bin/bash
+
+
+
+CID=$(docker ps | grep  wildfly-environment_db-oracle_1 | awk '{print $1}')
+CIP=$(docker inspect \
+  -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CID)
+ssh -o IdentitiesOnly=yes -i ./ssh/id_ed25519 root@$CIP
+

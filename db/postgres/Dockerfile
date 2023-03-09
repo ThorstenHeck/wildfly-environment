@@ -6,7 +6,7 @@ ARG SSH_PUB_KEY=_OVERRIDE_--build-arg
 
 USER root
 
-RUN apt-get update && apt-get install -y openssh-server openssh-client sudo
+RUN apt-get update && apt-get install -y openssh-server openssh-client sudo python3 -y
 
 RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh && \
     echo "$SSH_PUB_KEY" > /root/.ssh/authorized_keys && \
@@ -19,7 +19,7 @@ RUN mkdir /var/run/sshd && ssh-keygen -A
 RUN usermod -aG sudo postgres
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 COPY ./docker-entrypoint.sh /etc/docker-entrypoint.sh
-RUN chown postgres:postgres /etc/docker-entrypoint.sh
+RUN chown postgres:postgres /etc/docker-entrypoint.sh && ln -s /usr/bin/python3 /usr/bin/python
 RUN chmod 770 /etc/docker-entrypoint.sh
 USER postgres
 

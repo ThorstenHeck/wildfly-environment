@@ -14,6 +14,9 @@ import (
     "github.com/gorilla/mux"
     "time"
     "os/exec"
+    "net"
+    "bytes"
+
 )
 
 // Article - Our struct for all articles
@@ -109,16 +112,19 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
+    fmt.Println("trigger_upload!")
 	// 32 MB is the default used by FormFile
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+    fmt.Println("trigger_upload2!")
 
 	// get a reference to the fileHeaders
 	files := r.MultipartForm.File["file"]
 
+    fmt.Println(files)
+    fmt.Println(r)
 
 	for _, fileHeader := range files {    
 
@@ -128,6 +134,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
         //     return
         // }
 
+        fmt.Println("trigger_upload3!")
 
         if fileHeader.Size > MAX_UPLOAD_SIZE {
             http.Error(w, fmt.Sprintf("The uploaded zip file is too big: %s. Please use an file less than 512MB in size", fileHeader.Filename), http.StatusBadRequest)
@@ -160,6 +167,7 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
         }
+        fmt.Println("trigger_upload4!")
 
         err = os.MkdirAll("./upload", os.ModePerm)
         if err != nil {
@@ -215,6 +223,31 @@ func FindLastModifiedFileBefore(dir string, t time.Time) (path string, info os.F
     return
 }
 
+func checkdb() string {
+    timeout := 1 * time.Second
+    _, err := net.DialTimeout("tcp","10.5.0.4:22", timeout)
+    if err != nil {
+       dbflavour := "stack-oracle"
+       return dbflavour
+    }
+    dbflavour := "stack-postgres"
+    return dbflavour
+}
+
+func replace_host(hostgroup string) {
+
+    input, err := ioutil.ReadFile("/app/ansible/playbooks/deploy.yml")  
+    if err != nil {
+            fmt.Println(err)
+            os.Exit(1)
+    }
+    output := bytes.Replace(input, []byte("HOSTGROUP_PLACEHOLDER"), []byte(hostgroup), -1)
+    if err = ioutil.WriteFile("/app/ansible/playbooks/deploy.yml", output, 0666); err != nil {  
+            fmt.Println(err)
+            os.Exit(1)
+    }
+}
+
 func deploy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -231,30 +264,31 @@ func deploy(w http.ResponseWriter, r *http.Request) {
     }
     fmt.Println("using " + path + " to deploy")
 
+    dbbackend := checkdb()
+    fmt.Fprintf(w, dbbackend, " is used as the database backend!")
+    fmt.Printf(dbbackend)
+
+    replace_host(dbbackend)
+
     prg := "ansible-playbook"
 
     arg1 := "-i"
-    arg2 := "/app/ansible/environments/DEV/inventory"
-    arg3 := "/app/ansible/playbooks/deploy.yml"
+    arg2 := "inventory/hosts"
+    arg3 := "playbooks/deploy.yml"
 
     cmd := exec.Command(prg, arg1, arg2, arg3)
+    cmd.Dir = "/app/ansible"
     cmd.Env = os.Environ()
-    cmd.Env = append(cmd.Env, "ANSIBLE_ROLES_PATH=/app/ansible/roles")
-    cmd.Env = append(cmd.Env, "ansible_ssh_private_key_file=/home/ansible/.ssh/id_ed25519")
     stdout, err := cmd.Output()
+
+    fmt.Print(string(stdout))
 
     if err != nil {
         fmt.Println(err.Error())
         return
     }
 
-    fmt.Print(string(stdout))
-
-
 }
-
-
-
 
 func handleRequests() {
     myRouter := mux.NewRouter().StrictSlash(true)

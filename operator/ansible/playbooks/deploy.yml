@@ -1,11 +1,11 @@
 ---
 - name: deploy to wildfly
   hosts:
-    - wildfly
+    - HOSTGROUP_PLACEHOLDER
   # become: yes
 
   vars_files:
-    - "/app/ansible/environments/DEV/vars/test-var-file.yml"
+    - "/app/ansible/vars/deploy.yml"
 
   roles:
     - role: deploy

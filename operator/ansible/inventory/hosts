@@ -1,0 +1,13 @@
+[all]
+wildfly ansible_host=10.5.0.2
+db-oracle ansible_host=10.5.0.3
+db-postgres ansible_host=10.5.0.4
+operator ansible_host=10.5.0.5
+
+[stack-oracle]
+db-oracle
+wildfly
+
+[stack-postgres]
+db-postgres
+wildfly
