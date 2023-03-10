@@ -56,6 +56,8 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+
 	// 32 MB is the default used by FormFile
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -105,12 +107,15 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
         TotalSize: handler.Size,
     }
 
+
     _, err = io.Copy(f, io.TeeReader(file, pr))
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return
     }
-    fmt.Fprintf(w, "Upload successful")
+    w.Header().Add("Content-Type", "text/html")
+	http.ServeFile(w, r, "public/upload.html")
+
 }
 
 func checkdb() string {
@@ -138,11 +143,42 @@ func replace_host(hostgroup string) {
     }
 }
 
+func ansible_playbook (playbook_name string) string {
+    
+    prg := "ansible-playbook"
+    arg1 := "-i"
+    arg2 := "ansible/inventory/hosts"
+    arg3 := "ansible/playbooks/" + playbook_name
+
+    cmd := exec.Command(prg, arg1, arg2, arg3)
+    cmd.Env = os.Environ()
+    stdout, err := cmd.Output()
+    output := (string(stdout))
+
+    if err != nil {
+        fmt.Println(err.Error())
+        return output
+    }
+    return output
+}
+
+func deploy_1(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "text/html")
+	http.ServeFile(w, r, "public/deploy-1.html")
+}
+
+func deploy_2(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "text/html")
+	http.ServeFile(w, r, "public/deploy-1.html")
+}
+
 func deploy(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+    w.Header().Add("Content-Type", "text/html")
+	http.ServeFile(w, r, "public/deploy.html")
 
     dbbackend := checkdb()
     fmt.Fprintf(w, dbbackend, " is used as the database backend!")
@@ -150,23 +186,10 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 
     replace_host(dbbackend)
 
-    prg := "ansible-playbook"
+    ansible_playbook("deploy.yml")
 
-    arg1 := "-i"
-    arg2 := "inventory/hosts"
-    arg3 := "playbooks/deploy.yml"
-
-    cmd := exec.Command(prg, arg1, arg2, arg3)
-    cmd.Dir = "/app/ansible"
-    cmd.Env = os.Environ()
-    stdout, err := cmd.Output()
-
-    fmt.Print(string(stdout))
-
-    if err != nil {
-        fmt.Println(err.Error())
-        return
-    }
+    w.Header().Add("Location", "http://localhost:10000/")
+    w.WriteHeader(http.StatusFound)
 
 }
 
@@ -175,6 +198,8 @@ func handleRequests() {
     myRouter.HandleFunc("/", homePage)
     myRouter.HandleFunc("/upload", uploadHandler).Methods("POST")
     myRouter.HandleFunc("/deploy", deploy).Methods("POST")
+    myRouter.HandleFunc("/deploy-1", deploy_1)
+    myRouter.HandleFunc("/deploy-2", deploy_2)
     log.Fatal(http.ListenAndServe(":10000", myRouter))
 }
 

@@ -23,8 +23,8 @@ zip -r deployment_example.zip deployment_example
 
 ## upload to operator
 
-curl -F logo=@deployment_example.zip http://localhost:10000
+curl -X POST http://localhost:10000/deploy
 
-curl -X POST 'http://localhost:10000/deploy'
+curl -F file=@deployment_example.zip http://localhost:10000/upload
 
 

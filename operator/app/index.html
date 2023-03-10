@@ -1,57 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>File upload demo</title>
-  </head>
-  <script
-  src="https://code.jquery.com/jquery-3.4.1.min.js"
-  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-  crossorigin="anonymous">
-</script>
-  <body>
-    <form
-      id="form_upload"
-      action="/upload"
-      enctype="multipart/form-data"
-      method="POST"
-      data-autosubmit
-    >
-      <input class="input file-input" type="file" name="file" accept=".zip"/>
-      <button type="submit" class="btn btn-light" data-name="form_upload" onsubmit="submit">Upload!</button>    
-    </form>
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+      <title>File upload demo</title>
+      <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+      <style>
+      body,h1 {font-family: "Raleway", sans-serif}
+      body, html {height: 100%}
+      .bg {
+        background-color: #000000;
+        min-height: 100%;
+        background-position: center;
+        background-size: cover;
+      }
 
-    <form
-      id="form_deploy"
-      action="/deploy"
-      enctype="application/json"
-      method="POST"
-    >
-      <button type="submit" class="btn btn-light" data-name="form_deploy" onsubmit="ok">Deploy!</button>    
-    </form>
-    <script>
+    input[type=submit] {
+      box-shadow: 0px 1px 0px 0px #1c1b18;
+      background:linear-gradient(to bottom, #eae0c2 5%, #ccc2a6 100%);
+      background-color:#eae0c2;
+      border-radius:15px;
+      border:2px solid #333029;
+      display:inline-block;
+      cursor:pointer;
+      color:#505739;
+      font-family:Arial;
+      font-size:14px;
+      font-weight:bold;
+      padding:12px 16px;
+      text-decoration:none;
+      text-shadow:0px 1px 0px #ffffff;
+    }
 
-// $(document).ready(function() {
-//   $( '#form_upload' )
-//   .submit( function( e ) {
-//     $.ajax( {
-//       url: '/upload',
-//       type: 'POST',
-//       data: new FormData( this ),
-//       processData: false,
-//       contentType: false,
-//       async: !1
-//     } );
-//     e.preventDefault();
-//   } );
-// });
+    input[type=file] {
+      display: none;
+    }
+    .custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    }
+    
+      </style>
+      
+   </head>
+   <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+   <body>
 
-  </script>
+    <div class="bg w3-display-container w3-animate-opacity w3-text-white">
+      <div class="w3-display-topleft w3-padding-large w3-xlarge">
+      </div>
+      <div class="w3-display-middle">
+        <h1 id="header" class="w3-jumbo w3-animate-top">Please upload a zip file!</h1>
+        <p class="w3-large w3-center" style="margin:auto;width:50%">
+         
+          <form
+          id="form_upload"
+          action="/upload"
+          enctype="multipart/form-data"
+          method="POST"
+          data-autosubmit
+          >
+          <label class="custom-file-upload">
+            <input type="file" id='file' name="file" accept=".zip"/>
+          <script> 
 
+            function select_file () {
+              var name = document.getElementById('file'); 
+              var filename = name.files.item(0).name
+              return filename
+            };
+            
+            actual_name = select_file()
+            document.getElementById('file').addEventListener('change', () => {
+            document.getElementById("header").innerHTML = "zip selected: " + actual_name;
+            });
 
-  </body>
+          </script> 
+            <i class="fa fa-cloud-upload"></i> .zip Upload
+          </label>
+          <input type="submit" data-name="form_deploy" value="Upload"/>
+        </form>
+         
+         </p>
+      </div>
+    </div>
+
+      <!-- <script>
+         $(document).ready(function() {
+           $( '#form_upload' )
+           .submit( function( e ) {
+             $.ajax( {
+               url: '/upload',
+               type: 'POST',
+               data: new FormData( this ),
+               processData: false,
+               contentType: false,
+               async: !1
+             } );
+             e.preventDefault();
+           } );
+         });
+      </script> -->
+
+   </body>
 </html>
-
-

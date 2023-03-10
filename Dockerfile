@@ -50,7 +50,6 @@ RUN addgroup -g $GROUP_ID_SUDO $GROUP_NAME_SUDO
 RUN addgroup -S $USER_NAME $GROUP_NAME_SUDO
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 COPY ./docker-entrypoint.sh /app/docker-entrypoint.sh
-COPY ./operator/ansible /app/ansible
 COPY ./operator/app /app
 RUN chown ansible:ansible /app/docker-entrypoint.sh && chmod 770 /app/docker-entrypoint.sh 
 RUN mkdir /app/logs && \ 
